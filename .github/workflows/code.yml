@@ -3,8 +3,7 @@ name: Code CI
 on:
   push:
     branches:
-      - master
-      - main
+      - "*"
     tags:
       - "*"
   pull_request:
@@ -81,6 +80,7 @@ jobs:
           fetch-depth: 0
           submodules: true
 
+      - uses: mdavidsaver/ci-core-dumper@trace-container
       - name: Install Python
         uses: actions/setup-python@v2
         with:
@@ -93,6 +93,7 @@ jobs:
       - name: Build Wheel
         run: cibuildwheel --output-dir dist
         env:
+          CIBW_BEFORE_ALL_LINUX: yum install -y gdb
           CIBW_BUILD: ${{ matrix.python }}*64
           CIBW_TEST_EXTRAS: dev
           CIBW_TEST_COMMAND: pytest {project}/tests --cov-report xml:${{ matrix.cov_file }} --junit-xml=${{ matrix.results_file }}
